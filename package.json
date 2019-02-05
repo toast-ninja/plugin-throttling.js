@@ -36,7 +36,7 @@
     ]
   },
   "dependencies": {
-    "bottleneck": "^2.15.3"
+    "bottleneck": "2.16.0"
   },
   "devDependencies": {
     "@octokit/request": "2.2.1",
