@@ -7,6 +7,7 @@ import { VERSION } from "./version";
 import { wrapRequest } from "./wrap-request";
 import triggersNotificationPaths from "./generated/triggers-notification-paths";
 import { routeMatcher } from "./route-matcher";
+import { HttpError } from "./http-error";
 
 // Workaround to allow tests to directly access the triggersNotification function.
 const regex = routeMatcher(triggersNotificationPaths);
@@ -109,6 +110,7 @@ export function throttling(octokit: Octokit, octokitOptions = {}) {
   // @ts-ignore
   state.retryLimiter.on("failed", async function (error, info) {
     const options = info.args[info.args.length - 1];
+    const { maxRetryAfterSeconds = Number.MAX_SAFE_INTEGER } = info.args[0] || {}
     const shouldRetryGraphQL =
       options.url.startsWith("/graphql") && error.status !== 401;
 
@@ -149,10 +151,12 @@ export function throttling(octokit: Octokit, octokitOptions = {}) {
         const rateLimitReset = new Date(
           ~~error.headers["x-ratelimit-reset"] * 1000
         ).getTime();
-        const retryAfter = Math.max(
-          Math.ceil((rateLimitReset - Date.now()) / 1000),
-          0
-        );
+        const originalRetryAfter = Math.max(Math.ceil((rateLimitReset - Date.now()) / 1000), 0)
+
+        const retryAfter = originalRetryAfter > maxRetryAfterSeconds
+          ? maxRetryAfterSeconds
+          : originalRetryAfter
+
         const wantRetry = await emitter.trigger(
           "rate-limit",
           retryAfter,
@@ -170,6 +174,22 @@ export function throttling(octokit: Octokit, octokitOptions = {}) {
       return retryAfter * state.retryAfterBaseValue;
     }
   });
+
+  octokit.hook.after('request', (response, options) => {
+    if (!state.retryWhen) {
+      return
+    }
+
+    const shouldRetry = state.retryWhen(response, options)
+
+    if (shouldRetry) {
+      throw new HttpError(
+        response.statusText,
+        response.status,
+        response.headers,
+      )
+    }
+  })
 
   octokit.hook.wrap("request", wrapRequest.bind(null, state));
 }
