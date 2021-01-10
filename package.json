@@ -1,30 +1,22 @@
 {
   "name": "@octokit/plugin-throttling",
-  "version": "0.0.0-development",
-  "publishConfig": {
-    "access": "public"
-  },
   "description": "Octokit plugin for GitHub’s recommended request throttling",
-  "scripts": {
-    "build": "pika build",
-    "lint": "prettier --check '{src,scripts,test}/**/*' '!*/generated/**' README.md package.json",
-    "lint:fix": "prettier --write '{src,scripts,test}/**/*' '!*/generated/**' README.md package.json",
-    "pretest": "npm run -s lint",
-    "test": "jest --coverage",
-    "update-endpoints": "npm-run-all update-endpoints:*",
-    "update-endpoints:fetch-json": "node scripts/update-endpoints/fetch-json",
-    "update-endpoints:code": "node scripts/update-endpoints/code"
+  "version": "0.0.0-development",
+  "license": "MIT",
+  "files": [
+    "dist-*/",
+    "bin/"
+  ],
+  "pika": true,
+  "sideEffects": false,
+  "homepage": "https://github.com/octokit/plugin-throttling.js#readme",
+  "bugs": {
+    "url": "https://github.com/octokit/plugin-throttling.js/issues"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/octokit/plugin-throttling.js.git"
   },
-  "author": "Simon Grondin (http://github.com/SGrondin)",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/octokit/plugin-throttling.js/issues"
-  },
-  "homepage": "https://github.com/octokit/plugin-throttling.js#readme",
   "dependencies": {
     "@octokit/types": "^6.0.1",
     "bottleneck": "^2.15.3"
@@ -51,51 +43,11 @@
     "ts-jest": "^26.0.0",
     "typescript": "^4.0.2"
   },
-  "jest": {
-    "preset": "ts-jest",
-    "coverageThreshold": {
-      "global": {
-        "statements": 98,
-        "branches": 96,
-        "functions": 93,
-        "lines": 98
-      }
-    }
+  "publishConfig": {
+    "access": "public"
   },
-  "@pika/pack": {
-    "pipeline": [
-      [
-        "@pika/plugin-ts-standard-pkg"
-      ],
-      [
-        "@pika/plugin-build-node"
-      ],
-      [
-        "@pika/plugin-build-web"
-      ]
-    ]
-  },
-  "release": {
-    "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/release-notes-generator",
-      "@semantic-release/github",
-      [
-        "@semantic-release/npm",
-        {
-          "pkgRoot": "./pkg"
-        }
-      ],
-      [
-        "semantic-release-plugin-update-version-in-files",
-        {
-          "files": [
-            "pkg/dist-web/*",
-            "pkg/dist-node/*",
-            "pkg/*/version.*"
-          ]
-        }
-      ]
-    ]
-  }
+  "source": "dist-src/index.js",
+  "types": "dist-types/index.d.ts",
+  "main": "dist-node/index.js",
+  "module": "dist-web/index.js"
 }
