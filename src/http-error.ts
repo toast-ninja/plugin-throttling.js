@@ -1,5 +1,5 @@
-module.exports = class HttpError extends Error {
-  constructor (message, statusCode, headers, request) {
+export class HttpError extends Error {
+  constructor (message: string, statusCode: number, headers: Record<string, string>) {
     super(message)
 
     // Maintains proper stack trace (only available on V8)
@@ -17,6 +17,8 @@ module.exports = class HttpError extends Error {
       }
     })
     this.headers = headers
-    this.request = request
   }
+
+  public readonly status: number
+  public readonly headers: Record<string, string>
 }
